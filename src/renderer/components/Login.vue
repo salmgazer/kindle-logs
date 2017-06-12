@@ -2,7 +2,7 @@
   <div>
     <div class="doc">
       <div>
-        <form id="login-form" onsubmit="login()">
+        <form class="login-form" onsubmit="login()">
           <div>
             <img id="logo" src="~@/assets/logo_wr.png">
             <span class="title">
@@ -87,29 +87,25 @@
     margin-top: 150px;
   }
 
-  #login-form {
+  .login-form {
     margin: 0 auto;
     text-align: center;
   }
 
-  button {
+  .login-form button {
     text-align: center;
     margin: 0 auto;
   }
 
-  #login-form input {
+  .login-form input {
     width: 30%;
-    height: 40px;
+    height: 60px;
     margin-bottom: 40px;
     border: 1px solid #4fc08d;
     padding-left: 10px;
     font-size: 1.4em;
     border-radius: 2em;
     padding: 0.75em 2em;
-  }
-
-  main {
-    margin: 0 auto;
   }
 
 
@@ -127,8 +123,8 @@
     color: #2c3e50;
     font-size: 1.6em;
     font-weight: bold;
-    margin-bottom: 15px;
-    margin-top: 15px;
+    margin-bottom: 30px;
+    margin-top: 25px;
     display: block;
     text-align: center;
   }
