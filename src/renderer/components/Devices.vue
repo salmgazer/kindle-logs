@@ -53,11 +53,11 @@
 
 <script>
   import NavRegion from './NavRegion'
-  import fs from 'fs-extra'
+  import kindle from '../../util/functions.js'
 
-  let baseDir = '/Volumes/Kindle/'
+  let baseDir        = '/Volumes/Kindle/'
   let worldreaderDir = 'worldreader/'
-  let configFile = 'config.html'
+  let configFile     = 'config.json'
 
   export default {
     name: 'devices',
@@ -134,78 +134,37 @@
         this.$electron.shell.openExternal(link)
       },
       details(item) {
-        alert(JSON.stringify(item))
+        kindle.details(item)
       },
       navigate (link) {
-        window.location.hash = link
-      },
-      mountStatus () {
-
+        kindle.navigate(link)
       },
       setUpNewDevice () {
-        // check if device is mounted
-        if(this.dirExists(baseDir, 'Device is mounted', 'Device has not been mounted') === true){
-          this.mountStatus = true
-          //check if worldreader folder exists
-          if(this.dirExists((baseDir + worldreaderDir), 'Worldreader folder exists on device', 'Worldreader folder does not exist') == true) {
-            this.createdFolder = true
-            // check if config exits
-            if(this.dirExists((baseDir + worldreaderDir + configFile), 'Config file already exists', 'Config file does not exist') == true) {
-              this.configStatus = true
-            } else {
-              // config does not exists
-              if(this.createFile((baseDir + worldreaderDir + configFile), 'Successfully created config file', 'Could not create config file')){
-                this.configStatus = true
-              }else {
-                this.configStatus =false
-                this.setUpNewDevice()
-              }
-            }
-          } else {
-            // no worldreader dir
-            if(this.createDir((baseDir + worldreaderDir), 'Worldreader folder created successfully', 'Could not create worldreader folder')){
+        if(kindle.dirExists(baseDir, 'Device is mounted',
+          'Device has not been mounted')){
+            this.mountStatus = true
+          //check if config file exists
+          if(kindle.dirExists((baseDir + worldreaderDir + configFile),
+            'Config file already exists',
+            'Config file does not exist')) {
+              this.configStatus  = true
               this.createdFolder = true
-              this.setUpNewDevice()
-            } else {
-              this.createdFolder =false
-              console.log('Kindle device is not properly connected to this computer')
+          } else {
+            // config does not exists, create new one
+            if(kindle.createFile((baseDir + worldreaderDir + configFile),
+              'Successfully created config file',
+              'Could not create config file, try later')){
+              this.configStatus  = true
+              this.createdFolder = true
+              }else { this.configStatus =false }
             }
-          }
-        } else {
-          // not mounted
-          console.log('not mounted')
-          this.baseState()
+          }else{ this.baseState() 
         }
-      },
+      },      
       baseState() {
-        this.mountStatus =false
-        this.createdFolder =false
-        this.configStatus =false
-      },
-      dirExists (dir, successMessage, failureMessage) {
-        if(fs.pathExistsSync(dir)){
-          console.log(successMessage)
-          return true
-        }else{
-          console.log(failureMessage)
-          return false
-        }
-      },
-      createDir(dir, successMessage, failureMessage) {
-        if(fs.ensureDirSync(dir)){
-          console.log(successMessage)
-          return true
-        }
-        console.log(failureMessage)
-        return false
-      },
-      createFile(filePath, successMessage, failureMessage) {
-        fs.ensureFileSync(filePath)
-        if(this.dirExists(filePath, successMessage, failureMessage)){
-          return true
-        }
-        console.log(failureMessage)
-        return false
+        this.mountStatus   = false
+        this.createdFolder = false
+        this.configStatus  = false
       },
     }
   }

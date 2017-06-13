@@ -2,7 +2,7 @@
   <div>
     <div class="doc">
       <div>
-        <form class="login-form" onsubmit="login()">
+        <form class="login-form">
           <div>
             <img id="logo" src="~@/assets/logo_wr.png">
             <span class="title">
@@ -15,7 +15,7 @@
           <div>
             <input type="password" id="password" name="password" placeholder="password" />
           </div>
-          <button class="center" @click="login()">Login</button><br><br>
+          <button class="center" type="submit" @click="this.auth">Login</button><br><br>
         </form>
       </div>
     </div>
@@ -23,24 +23,13 @@
 </template>
 
 <script>
+  import kindle from '../../util/functions.js'
 
   export default {
     name: 'landing-page',
     methods: {
-      open (link) {
-        this.$electron.shell.openExternal(link)
-      },
-      login () {
-        const username = document.getElementById('username').value
-        const password = document.getElementById('password').value
-        if (username === 'salifu' && password === 'world123') {
-          this.navigate('home')
-        } else {
-          alert('Wrong details')
-        }
-      },
-      navigate (link) {
-        window.location.hash = link
+      auth() { 
+        kindle.login()
       }
     }
   }
@@ -48,10 +37,6 @@
 
 <style>
   @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
-
-  .row {
-    display: block;
-  }
 
   .centered {
     margin: 0 auto;

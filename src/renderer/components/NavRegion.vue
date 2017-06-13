@@ -16,11 +16,16 @@
             <b-nav-item-dropdown right>
             
             <template slot="text">
+              <span style="color: #fff; margin-right: 50px;">Welcome {{ this.username }}</span>
+            </template>
+          
+
+            <template slot="text">
               <span style="font-weight: bold;">Settings</span>
             </template>
           
-            <b-dropdown-item to="#">Config</b-dropdown-item>
-            <b-dropdown-item to="#">Profile</b-dropdown-item>
+            <b-dropdown-item to="/config">Config</b-dropdown-item>
+            <b-dropdown-item to="/profile">Profile</b-dropdown-item>
             <b-dropdown-item to="/logout">Signout</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-nav>
@@ -31,6 +36,8 @@
 </template>
 
 <script>
+import store from '../../database/store.js'
+import kindle from '../../util/functions.js'
 
 export default {
   name: 'navregion',
@@ -40,12 +47,13 @@ export default {
 			links: [
 				{ 'name': 'Home', 'link': '#/home' },
 				{ 'name': 'Devices', 'link': '#/devices' }
-			]
+			],
+      username: store.get('users')[0].admin.username
 		}
 	},
   methods: {
     navigate: (link) => {
-      window.location.hash = link
+      kindle.navigate(link)
     }
   }
 }
@@ -57,6 +65,17 @@ export default {
   }
   .active-nav a {
     color: #fff !important;
+  }
+  #wrapper {
+    background:
+      radial-gradient(
+        ellipse at top left,
+        rgba(255, 255, 255, 1) 40%,
+        rgba(229, 229, 229, .9) 100%
+      );
+    height: 100vh;
+    padding: 60px 80px;
+    width: 100vw;
   }
 </style>
 
