@@ -2,7 +2,7 @@
   <div>
     <div class="doc">
       <div>
-        <form class="login-form">
+        <div class="login-form">
           <div>
             <img id="logo" src="~@/assets/logo_wr.png">
             <span class="title">
@@ -15,8 +15,8 @@
           <div>
             <input type="password" id="password" name="password" placeholder="password" />
           </div>
-          <button class="center" type="submit" @click="this.auth">Login</button><br><br>
-        </form>
+          <button class="center" type="button" @click="this.auth">Login</button><br><br>
+        </div>
       </div>
     </div>
   </div>
@@ -32,6 +32,7 @@
         kindle.login()
       }
     }
+
   }
 </script>
 

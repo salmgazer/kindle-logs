@@ -33,7 +33,7 @@
       </div>
 
       <!-- Main table element -->
-      <b-table striped hover :items="items" :fields="fields" :current-page="currentPage" :per-page="perPage" :filter="filter">
+      <b-table striped hover :items="devices" :fields="fields" :current-page="currentPage" :per-page="perPage" :filter="filter">
         <template slot="name" scope="item">
           {{item.item.program}}
         </template>
@@ -46,7 +46,7 @@
       </b-table>
 
       <div class="justify-content-center row my-1">
-        <b-pagination size="md" :total-rows="this.items.length" :per-page="perPage" v-model="currentPage" />
+        <b-pagination size="md" :total-rows="this.devices.length" :per-page="perPage" v-model="currentPage" />
       </div>
   </div>
 </template>
@@ -57,7 +57,7 @@
 
   let baseDir        = '/Volumes/Kindle/'
   let worldreaderDir = 'worldreader/'
-  let configFile     = 'config.json'
+  let configFile     = baseDir + worldreaderDir + 'config.json'
 
   export default {
     name: 'devices',
@@ -67,44 +67,7 @@
         mountStatus: false,
         createdFolder: false,
         configStatus:false,
-        items: [
-          { 
-            user_id: 'POP235',
-            program: 'Pencils of Promise',
-            uuid: '31498310-34342n-23232-23232',
-            last_updated: '12-06-2017'
-          },
-          { 
-            user_id: 'POP235',
-            program: 'Pencils of Promise',
-            uuid: '31498310-34342n-23232-23232',
-            last_updated: '12-06-2017'
-          },
-          { 
-            user_id: 'LEAP235',
-            program: 'LEAP',
-            uuid: '31498310-34342n-23232-23232',
-            last_updated: '12-06-2017'
-          },
-          { 
-            user_id: 'Nima235',
-            program: 'Mamobi Library',
-            uuid: '31498310-34342n-23232-23232',
-            last_updated: '12-06-2017'
-          },
-          { 
-            user_id: 'Nima235',
-            program: 'Mamobi Library',
-            uuid: '31498310-34342n-23232-23232',
-            last_updated: '12-06-2017'
-          },
-          { 
-            user_id: 'Nima205',
-            program: 'Mamobi Library',
-            uuid: '31498310-34342n-23232-23232',
-            last_updated: '12-06-2017'
-          },
-        ],
+        devices: kindle.getDevices(),
       fields: {
         name: {
           label: 'Device ID',
@@ -133,29 +96,41 @@
       open (link) {
         this.$electron.shell.openExternal(link)
       },
-      details(item) {
-        kindle.details(item)
+      details(device) {
+        kindle.details(device)
       },
       navigate (link) {
         kindle.navigate(link)
       },
       setUpNewDevice () {
-        if(kindle.dirExists(baseDir, 'Device is mounted',
-          'Device has not been mounted')){
+        if(kindle.dirExists(baseDir, 'Device is mounted', 'Device has not been mounted')){
             this.mountStatus = true
           //check if config file exists
-          if(kindle.dirExists((baseDir + worldreaderDir + configFile),
-            'Config file already exists',
-            'Config file does not exist')) {
+          if(kindle.dirExists(configFile, 'Config file already exists', 'Config file does not exist')) {
               this.configStatus  = true
               this.createdFolder = true
+              // load config file as json and confirm configuration
+              if(kindle.confirmConfig(configFile,'Successfully registered this device', 'Failed to register this device')){
+                console.log('Config file is great')
+              } else {   
+                kindle.writeJson(configFile, kindle.generateNewDeviceConfig())
+                if(kindle.confirmConfig(configFile,'Successfully registered this device', 'Failed to register this device')){
+                  var configJson = require(configFile+'') /* @TODO to be removed */
+                  kindle.onBoardDevice(configJson)
+                } 
+              }
           } else {
             // config does not exists, create new one
-            if(kindle.createFile((baseDir + worldreaderDir + configFile),
-              'Successfully created config file',
-              'Could not create config file, try later')){
+            if(kindle.createFile((configFile),'Successfully created config file', 'Could not create config file, try later')){
               this.configStatus  = true
               this.createdFolder = true
+              // write to config file
+              kindle.writeJson(configFile, kindle.generateNewDeviceConfig())
+              if(kindle.confirmConfig(configFile,'Successfully registered this device', 'Failed to register this device')){
+                var configJson = require(configFile +'') /* @TODO to be removed */
+                kindle.onBoardDevice(configJson)
+              } 
+
               }else { this.configStatus =false }
             }
           }else{ this.baseState() 
