@@ -13,13 +13,16 @@
         </div>
         <div class="col-md-4">
           <div v-if="this.createdFolder == true">
-            <p>Created worldreader folder</p>
+            <p>Registered</p>
           </div>
           <div v-else>
             <p>Did not create worldreader folder</p>
           </div>
         </div>
       </div>
+      <div class="row" id="log-area" v-if="this.configStatus == true">
+        <button class="btn btn-outline-warning col-mdp3" @click='readLogs()'>Read Logs</button>
+        </div>
       <!-- List devices -->
       <div class="justify-content-centermy-1 row">
         <b-form-fieldset horizontal label="Rows per page" class="col-6" :label-size="6">
@@ -54,9 +57,9 @@
 <script>
   import NavRegion from './NavRegion'
   import kindle from '../../util/functions.js'
-
   let baseDir        = '/Volumes/Kindle/'
   let worldreaderDir = 'worldreader/'
+  let localLogs      = 'kindlelogs/'
   let configFile     = baseDir + worldreaderDir + 'config.json'
 
   export default {
@@ -68,30 +71,30 @@
         createdFolder: false,
         configStatus:false,
         devices: kindle.getDevices(),
-      fields: {
-        name: {
-          label: 'Device ID',
-          sortable: true
+        fields: {
+          name: {
+            label: 'Device ID',
+            sortable: true
+          },
+          uuid: {
+            label: 'UUID',
+            sortable: true
+          },
+          program: {
+            label: 'Program'
+          },
+          last_updated: {
+            label: 'Last Updated'
+          },
+          actions: {
+            label: 'Actions'
+          }
         },
-        uuid: {
-          label: 'UUID',
-          sortable: true
-        },
-        program: {
-          label: 'Program'
-        },
-        last_updated: {
-          label: 'Last Updated'
-        },
-        actions: {
-          label: 'Actions'
+        currentPage: 1,
+        perPage: 5,
+        filter: null
         }
       },
-      currentPage: 1,
-      perPage: 5,
-      filter: null
-      }
-    },
     methods: {
       open (link) {
         this.$electron.shell.openExternal(link)
@@ -112,28 +115,56 @@
               // load config file as json and confirm configuration
               if(kindle.confirmConfig(configFile,'Successfully registered this device', 'Failed to register this device')){
                 console.log('Config file is great')
+                var device = kindle.getJsonFromFile(configFile +'')
+                if(kindle.searchDevice(device)){
+                }else {
+                  kindle.onboardDevice(kindle.getJsonFromFile(configFile+''))
+                  this.devices = kindle.getDevices()
+                }
               } else {   
                 kindle.writeJson(configFile, kindle.generateNewDeviceConfig())
                 if(kindle.confirmConfig(configFile,'Successfully registered this device', 'Failed to register this device')){
-                  var configJson = require(configFile+'') /* @TODO to be removed */
-                  kindle.onBoardDevice(configJson)
+                  kindle.onboardDevice(kindle.getJsonFromFile(configFile+''))
+                  this.devices = kindle.getDevices()
                 } 
               }
           } else {
             // config does not exists, create new one
-            if(kindle.createFile((configFile),'Successfully created config file', 'Could not create config file, try later')){
+            if(kindle.createFile(configFile,'Successfully created config file', 'Could not create config file, try later')){
               this.configStatus  = true
               this.createdFolder = true
               // write to config file
               kindle.writeJson(configFile, kindle.generateNewDeviceConfig())
               if(kindle.confirmConfig(configFile,'Successfully registered this device', 'Failed to register this device')){
                 var configJson = require(configFile +'') /* @TODO to be removed */
-                kindle.onBoardDevice(configJson)
+                kindle.onboardDevice(configJson)
               } 
-
               }else { this.configStatus =false }
             }
-          }else{ this.baseState() 
+          }else{ 
+            this.baseState() 
+        }
+      },
+      readLogs() {
+        console.log('About to read logs')
+        var config = kindle.getDeviceConfig(configFile + '')
+        if(config[0]){
+          console.log('lets create some directories')
+          console.log(config[1].uuid)
+          // check if localFolder exists
+          if(kindle.dirExists((localLogs + config[1].uuid + '/'), 'Local logs folder for this device exists',
+            'There is no local logs folder for this device') == true) {
+              // go ahead to read new logs
+            } else {
+              // create new local logs folder for device
+              if(kindle.createDir(localLogs + config[1].uuid + '/', 'Successfully created local logs folder', 'Could not create local logs folder' )) {
+                //now read logs into the new folder
+              } else {
+                console.log('Could not create local log folder, try again later')
+              }
+            }
+        } else {
+          console.log('The device has been dismoutned')
         }
       },      
       baseState() {
@@ -173,13 +204,13 @@
     justify-content: space-between;
   }
 
-  #check-area  {
+  #check-area, #log-area  {
     margin-top: 30px;
     margin-bottom: 30px;
     width: 90%;
   }
 
-  #check-area button {
+  #check-area button, #log-area button {
     margin-left: 15px;
   }
 

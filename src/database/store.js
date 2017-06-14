@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt-nodejs')
 
 if(store.get('users')){
   console.log('Users already exist')
+  console.log(store.get('users'))
 }
 else {
   store.set('last_uuid', uuidV1())

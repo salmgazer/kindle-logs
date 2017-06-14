@@ -46,7 +46,8 @@ export default {
 		return {
 			links: [
 				{ 'name': 'Home', 'link': '#/home' },
-				{ 'name': 'Devices', 'link': '#/devices' }
+				{ 'name': 'Devices', 'link': '#/devices' },
+        { 'name': 'Documentation', 'link': '#/documentation' }
 			],
       username: store.get('users')[0].admin.username
 		}

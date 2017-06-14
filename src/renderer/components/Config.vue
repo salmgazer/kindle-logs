@@ -1,4 +1,4 @@
-<<template>
+<template>
   <div id="wrapper">
     <NavRegion active='Config'></NavRegion>
       <h1 style="text-align: center; margin-top: 100px;">Config</h1>

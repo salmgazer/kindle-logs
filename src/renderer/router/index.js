@@ -33,6 +33,11 @@ export default new Router({
       component: require('@/components/Profile')
     },
     {
+      path: '/Documentation',
+      name: 'documentation',
+      component: require('@/components/Documentation/Index')
+    },
+    {
       path: '*',
       redirect: '/'
     }
