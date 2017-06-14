@@ -111,9 +111,10 @@ class KindleLogs {
     return [false, {}]
   }
 
+  /* TODO: write a better search function */
   searchDevice(device) {
     const devices = store.get('devices')
-    if(this.binarySearch(devices, device, this.compareDevices) != -1){
+    if(this.search(devices, device)){
       console.log('This device is already in our records')
       return true
     }
@@ -121,21 +122,14 @@ class KindleLogs {
     return false
   }
   
-  binarySearch(devices, device, compareFunc) {
-    var m = 0
-    var n = devices.length - 1
-    while (m <= n) {
-        var k = (n + m) >> 1
-        var cmp = compareFunc(device, devices[k]);
-        if (cmp > 0) {
-            m = k + 1;
-        } else if(cmp < 0) {
-            n = k - 1;
-        } else {
-            return k;
-        }
+  search(devices, device) {
+    for(var i = 0; i < devices.length; i++) {
+      console.log('here :: ' + devices[i])
+      if(devices[i].uuid == device.uuid){
+        return true
+      }
     }
-    return -m - 1;
+    return false
   }
 
   compareDevices(deviceA, deviceB) {

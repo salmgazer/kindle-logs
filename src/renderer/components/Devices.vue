@@ -138,6 +138,7 @@
               if(kindle.confirmConfig(configFile,'Successfully registered this device', 'Failed to register this device')){
                 var configJson = kindle.getJsonFromFile(configFile +'') /* @TODO to be removed */
                 kindle.onboardDevice(configJson)
+                this.devices =kindle.getDevices()
               } 
               }else { this.configStatus =false }
             }
