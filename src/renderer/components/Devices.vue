@@ -14,7 +14,7 @@
         </div>
       </div>
       <div class="row" id="log-area">
-        <button v-if="this.configStatus == true" class="btn btn-outline-primary col-md-2" @click='readLogs()'>Read Logs</button>
+        <button v-if="this.configStatus && this.mountStatus" class="btn btn-outline-primary col-md-2" @click='readLogs()'>Read Logs</button>
         <div class="row col-md-8" style="margin-left: 100px; float: right">
           <input  class="form-control col-md-5" id="program" name="program" v-model="this.program" />
           <button class="btn btn-primary" @click="updateProgram()">Update program</button>
@@ -53,7 +53,7 @@
         <label style="color: red;">Console</label>
         <p>{{ this.messages }}</p>
       </div>
-      <div id="bottom-right">
+      <div id="bottom-right" v-if="this.mountStatus">
         <!--<button class="btn btn-outline-success col-md-3" @click='setUpNewDevice()'>Set Up New Device</button>-->
         <i class="fa fa-4x fa-plus-circle" id="setup-button" aria-hidden="true" @click='setUpNewDevice()'></i>
       </div>
@@ -138,6 +138,8 @@
           const pathStatus = await kindle.dirExistsAsync(baseDir)
           //console.log(pathStatus)
           this.mountStatus = pathStatus
+          if(pathStatus == false)
+            this.configStatus = pathStatus
         }, 1000) 
       },
       open (link) {
