@@ -4,14 +4,6 @@
     <NavRegion active='Devices'></NavRegion> 
       <div id='check-area' class="row">
         <MountArea v-bind:mount-status="this.mountStatus"/>
-        <div v-if="this.mountStatus == true" class="col-md-4">
-          <div v-if="this.createdFolder == true">
-            <p>Registered</p>
-          </div>
-          <div v-else>
-            <p>Not Registered</p>
-          </div>
-        </div>
       </div>
       <div class="row" id="log-area">
         <button v-if="this.configStatus && this.mountStatus" class="btn btn-outline-primary col-md-2" @click='readLogs()'>Read Logs</button>
@@ -140,6 +132,7 @@
           this.mountStatus = pathStatus
           if(pathStatus == false)
             this.configStatus = pathStatus
+            this.createdFolder = pathStatus
         }, 1000) 
       },
       open (link) {
