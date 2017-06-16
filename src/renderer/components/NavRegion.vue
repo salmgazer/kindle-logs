@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-navbar toggleable type="inverse" variant="success">
+    <b-navbar toggleable type="inverse" id="wr-nav">
       <b-nav-toggle target="nav_collapse"></b-nav-toggle>
         <b-link class="navbar-brand" to="#">
           <span>Kindle Logs</span>
@@ -11,19 +11,19 @@
             <b-nav-item v-if='link.name == active' @click='navigate(link.link)' class="active-nav">{{ link.name }} </b-nav-item>
             <b-nav-item v-else @click='navigate(link.link)'>{{ link.name }} </b-nav-item>
           </b-nav>
-          
+
           <b-nav is-nav-bar class="ml-auto">
             <b-nav-item-dropdown right>
-            
+
             <template slot="text">
-              <span style="color: #fff; margin-right: 50px;">Welcome {{ this.username }}</span>
+              <span style="color: #fff; margin-right: 50px;">Welcome&nbsp; {{ this.username }}</span>
             </template>
-          
+
 
             <template slot="text">
               <span style="font-weight: bold;">Settings</span>
             </template>
-          
+
             <b-dropdown-item to="/config">Config</b-dropdown-item>
             <b-dropdown-item to="/profile">Profile</b-dropdown-item>
             <b-dropdown-item to="/logout">Signout</b-dropdown-item>
@@ -78,8 +78,7 @@ export default {
     padding: 60px 80px;
     width: 100vw;
   }
+  #wr-nav {
+    background-color: #05f;
+  }
 </style>
-
-
-
-	

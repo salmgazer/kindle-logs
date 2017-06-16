@@ -1,5 +1,7 @@
 import store from '../database/store.js'
+const fsold = require('fs')
 import fs from 'fs-extra'
+
 var bcrypt = require('bcrypt-nodejs')
 
 const uuidV5 = require('uuid')
@@ -17,14 +19,12 @@ class KindleLogs {
     }
   }
 
-  /* Generates a unique UUID for a device based on local time */
+  /* Generates a unique UUID for a device based on last generated uuid */
   generateUuid() {
     const NAMESPACE = store.get('last_uuid')
-    return uuidV5('kindlelogs', NAMESPACE)
-  }
-
-  lastUuid() {
-    return store.get('last_uuid')
+    const newUuid = uuidV5('kindlelogs', NAMESPACE)
+    store.set('last_uuid', newUuid)
+    return newUuid
   }
 
   navigate (link) {
@@ -32,31 +32,21 @@ class KindleLogs {
   }
 
   dirExists(dir, successMessage, failureMessage) {
-    if(fs.pathExistsSync(dir) == true){
-      console.log(successMessage)
-      return true
-    }
-    console.log(failureMessage)
-    return false
-    
+    return fs.pathExistsSync(dir)
   }
 
-  createDir(dir, successMessage, failureMessage) {
-    if(fs.ensureDirSync(dir)){
-      console.log(successMessage)
-      return true
-    }
-    console.log(failureMessage)
-    return false
+  async dirExistsAsync(dir) {
+    const pathStatus = await fs.pathExists(dir)
+    return pathStatus
   }
 
-  createFile(filePath, successMessage, failureMessage) {
+  createDir(dir) {
+    return fs.ensureDirSync(dir)
+  }
+
+  createFile(filePath) {
     fs.ensureFileSync(filePath)
-    if(this.dirExists(filePath, successMessage, failureMessage)) {
-      return true
-    }
-    console.log(failureMessage)
-    return false
+    return this.dirExists(filePath)
   }
 
   writeJson(jsonFilePath, jsonObject) {
@@ -67,22 +57,13 @@ class KindleLogs {
     alert(JSON.stringify(item))
   }
 
-  getCurrentProgram() {
-    return store.get('current_program')
-  }
-
   generateNewDeviceConfig() {
     return {uuid: this.generateUuid(), last_updated: new Date(), program: this.getCurrentProgram(), user_id: 'unkown'}
   }
 
-  confirmConfig(jsonFilePath, successMessage, failureMessage) {
+  confirmConfig(jsonFilePath) {
     var config = fs.readJsonSync(jsonFilePath+'')
-    if(config.uuid !='' && config.last_updated != '' && config.program != '' && config.user_id !='') {
-      console.log(successMessage)
-      return true
-    }
-    console.log(failureMessage)
-    return true
+    return (config.uuid !='' && config.last_updated != '' && config.program != '' && config.user_id !='')
   }
 
   onboardDevice(jsonObject){
@@ -103,11 +84,9 @@ class KindleLogs {
   getDeviceConfig(configFile) {
     // load config
     if(this.dirExists(configFile)) {
-      console.log('config exits ==== >>>>')
       var deviceConfig = fs.readJsonSync(configFile + '')
       return [true, deviceConfig]
     }
-    console.log('Device has been dismounted')
     return [false, {}]
   }
 
@@ -124,10 +103,8 @@ class KindleLogs {
   
   search(devices, device) {
     for(var i = 0; i < devices.length; i++) {
-      console.log('here :: ' + devices[i])
-      if(devices[i].uuid == device.uuid){
+      if(devices[i].uuid == device.uuid)
         return true
-      }
     }
     return false
   }
@@ -138,6 +115,48 @@ class KindleLogs {
     }
     return -1
   }
+
+  async filesInDir(expectedFiles){
+    for(var i = 0; i < expectedFiles.length; i++) {
+      const dirStatus = await this.dirExistsAsync(expectedFiles[i].dir)
+      if(dirStatus){
+        const allFiles = await fs.readdir(expectedFiles[i].dir)
+        for (var m = 0; m < allFiles.length; m++){
+          if(allFiles[m].includes(expectedFiles[i].filename)) {
+            expectedFiles[i].status = fsold.lstatSync(expectedFiles[i].dir + allFiles[m]).isFile()
+            expectedFiles[i].filename = allFiles[m]
+          }
+        }
+      }
+    }
+    return expectedFiles
+  }
+
+  async countFilesInDir(dir) {
+    const allFiles = await fs.readdir(dir)
+    return allFiles.length
+  }
+
+  async copyFileOrDir(fileOrDirPath, newFileOrDirPath){
+    const copyStatus = await fs.copy(fileOrDirPath, newFileOrDirPath)
+    const status = await this.dirExistsAsync(newFileOrDirPath)
+    return status
+  }
+
+  getExpectedFiles() {
+    return store.get('expectedLogFiles')
+  }
+
+  getCurrentProgram() {
+    return store.get('current_program')
+  }
+
+  updateProgram() {
+    const newName = document.getElementById('program').value
+    store.set('current_program', newName)
+    return (store.get('current_program') == newName)
+  }
+  
 }
 
 const kindle = new KindleLogs()

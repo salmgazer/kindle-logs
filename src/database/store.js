@@ -2,9 +2,10 @@ var store = require('storejs')
 const uuidV1 = require('uuid/v1')
 const bcrypt = require('bcrypt-nodejs')
 
+let kindleBaseDir = '/Volumes/Kindle/'
+
+
 if(store.get('users')){
-  console.log('Users already exist')
-  console.log(store.get('users'))
 }
 else {
   store.set('last_uuid', uuidV1())
@@ -16,6 +17,29 @@ else {
       }
     }
   ])
+}
+
+if(store.get('expectedLogFiles')){
+} else {
+  store.set('expectedLogFiles', 
+    [
+      {
+        filename: 'userannotlog',
+        dir: kindleBaseDir + 'system/',
+        status: false
+      },
+      {
+        filename: 'annotation_',
+        dir: kindleBaseDir + 'system/userannotlogsDir/',
+        status: false
+      },
+      {
+        filename: 'processing_annotation_',
+        dir: kindleBaseDir + 'system/userannotlogsDir/',
+        status: false
+      }
+    ]
+  )
 }
 
 if(store.get('current_program')) {
